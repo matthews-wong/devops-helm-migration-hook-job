@@ -1,0 +1,15 @@
+# A hook too, so it exists before the Job on first install (weight -5 < Job's 0).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "migrate-app.name" . }}-migrate-script
+  labels:
+    {{- include "migrate-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: migration
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-5"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+data:
+  migrate.sh: |
+    {{- .Values.migration.script | nindent 4 }}
