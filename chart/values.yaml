@@ -1,0 +1,32 @@
+replicaCount: 2
+
+image:
+  repository: nginxinc/nginx-unprivileged
+  tag: 1.27.3-alpine
+  pullPolicy: IfNotPresent
+
+service:
+  port: 80
+
+database:
+  # Name of an existing Secret holding the connection string; never created here.
+  existingSecret: ""
+  secretKey: DATABASE_URL
+
+migration:
+  image:
+    repository: busybox
+    tag: 1.37.0
+  # Stand-in for a real migrator; replace with e.g. ["/app/migrate", "up"].
+  script: |
+    echo "applying migrations"
+  backoffLimit: 1
+  # Bounds the hook so a stuck migration fails the release instead of hanging it.
+  activeDeadlineSeconds: 300
+  resources:
+    requests: { cpu: 50m, memory: 32Mi }
+    limits: { cpu: 200m, memory: 64Mi }
+
+resources:
+  requests: { cpu: 50m, memory: 64Mi }
+  limits: { cpu: 250m, memory: 128Mi }
